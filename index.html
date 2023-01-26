@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Pokedex-Checkpoint</title>
+</head>
+<body>
+    <input type="text" placeholder="Insert Pokemon name">
+    <button>Search</button>
+    <button id="moreInfo">More Info</button>
+    <div>
+        <div id="sfx"></div>
+    </div>
+    
+    <script>
+        const div = document.querySelector("div");
+        const catchThemAll = async () => {
+            try {
+                div.innerHTML = "";
+                div.innerHTML = `<audio src="./sound.mp3" autoplay><audio>`;
+                const pokemon = document.querySelector("input").value.toLowerCase();
+                const url = await fetch (`https://pokeapi.co/api/v2/pokemon/${pokemon}`);
+                const json = await url.json();
+                
+                const img = document.createElement("img");
+                div.appendChild(img);
+                img.src = json.sprites.front_default;
+
+                const name = document.createElement("p");
+                div.appendChild(name);
+                name.innerText = `Name: ${json.forms[0].name}`;
+
+                const exp = document.createElement("p");
+                div.appendChild(exp);
+                exp.innerText = `Base experience: ${json.base_experience} xp`;
+                
+                for (const el of json.abilities) {
+                    let p = document.createElement("p");
+                    div.appendChild(p);
+                    p.innerText = `Ability: ${el.ability.name}`
+                }
+
+            } catch (error) {
+                console.error("Pokemon not found")
+                alert("Pokemon not found")
+            }
+        } 
+        document.querySelector("button").onclick = () => catchThemAll();
+
+        const moreInfo = async () => {
+            const pokemon = document.querySelector("input").value.toLowerCase();
+            const url = await fetch (`https://pokeapi.co/api/v2/pokemon/${pokemon}`);
+            const json = await url.json();
+
+            const info = await fetch(json.species.url);
+            const infoJson = await info.json();
+            
+            const egg = document.createElement("p");
+            div.appendChild(egg);
+            egg.innerText = `Egg group: ${infoJson.egg_groups[0].name}`
+
+            const color = document.createElement("p");
+            div.appendChild(color);
+            color.innerText = `Color: ${infoJson.color.name}`
+
+            const shinyDesc = document.createElement("p");
+            div.appendChild(shinyDesc);
+            egg.innerText = `Shiny form:`
+
+            const forma = document.createElement("img");
+            div.appendChild(forma);
+            forma.src = json.sprites.front_shiny
+        }
+        document.querySelector("#moreInfo").onclick = () => moreInfo();
+    </script>
+</body>
+</html>
